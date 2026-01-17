@@ -1,22 +1,17 @@
-import { backgroundColors, primaryColors } from "@/constants/GlobalConstants";
 import { MaterialCommunityIcons, SimpleLineIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
+
+import CustomTabBar from "@/components/CustomTabBar";
 
 export default function TabLayout() {
   //   const colorScheme = useColorScheme();
 
   return (
     <Tabs
+      tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
-        tabBarActiveTintColor: primaryColors,
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: backgroundColors,
-          height: 60,
-          borderTopWidth: 1,
-          borderColor: "#ccc",
-        },
       }}
     >
       <Tabs.Screen

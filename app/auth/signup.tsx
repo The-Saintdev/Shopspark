@@ -1,3 +1,11 @@
+import {
+  backgroundColors,
+  primaryColors,
+  secondaryColors,
+  whiteColors,
+} from "@/constants/GlobalConstants";
+import {signUp} from "@/lib/auth";
+import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -12,29 +20,38 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { backgroundColors, primaryColors, secondaryColors, whiteColors } from "@/constants/GlobalConstants";
 
 const Signup = () => {
   const router = useRouter();
-  const [fullName, setFullName] = useState("");
+  const { theme } = useTheme();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+   const [error, setError] = useState("");
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     // TODO: Implement signup logic
-    console.log("Signup pressed", {
-      fullName,
-      email,
-      password,
-      confirmPassword,
-    });
+   if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+    try {
+      await signUp({ email, password, firstName, lastName });
+      alert("Signup successful! Please verify your email before logging in.");
+      router.push("/auth/login");
+    } catch (err: any) {
+      setError (err.message || "An error occurred during signup");
+    }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
@@ -45,26 +62,65 @@ const Signup = () => {
         >
           <View style={styles.headerContainer}>
             <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Sign up to get started</Text>
+            <Text style={[styles.subtitle, { color: theme.text }]}>
+              Sign up to get started
+            </Text>
           </View>
 
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Full Name</Text>
+              <Text style={[styles.label, { color: theme.text }]}>
+                First Name
+              </Text>
               <TextInput
-                style={styles.input}
-                placeholder="Enter your full name"
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.card,
+                    color: theme.text,
+                    borderColor: theme.text,
+                  },
+                ]}
+                placeholder="Enter your first name"
                 placeholderTextColor="#999"
-                value={fullName}
-                onChangeText={setFullName}
+                value={firstName}
+                onChangeText={setFirstName}
                 autoCapitalize="words"
               />
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={[styles.label, { color: theme.text }]}>
+                Last Name
+              </Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.card,
+                    color: theme.text,
+                    borderColor: theme.text,
+                  },
+                ]}
+                placeholder="Enter your last name"
+                placeholderTextColor="#999"
+                value={lastName}
+                onChangeText={setLastName}
+                autoCapitalize="words"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={[styles.label, { color: theme.text }]}>Email</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.card,
+                    color: theme.text,
+                    borderColor: theme.text,
+                  },
+                ]}
                 placeholder="Enter your email"
                 placeholderTextColor="#999"
                 value={email}
@@ -75,10 +131,17 @@ const Signup = () => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Password</Text>
-              <View style={styles.passwordContainer}>
+              <Text style={[styles.label, { color: theme.text }]}>
+                Password
+              </Text>
+              <View
+                style={[
+                  styles.passwordContainer,
+                  { backgroundColor: theme.card, borderColor: theme.text },
+                ]}
+              >
                 <TextInput
-                  style={styles.passwordInput}
+                  style={[styles.passwordInput, { color: theme.text }]}
                   placeholder="Create a password"
                   placeholderTextColor="#999"
                   value={password}
@@ -91,17 +154,24 @@ const Signup = () => {
                   <Ionicons
                     name={showPassword ? "eye-off-outline" : "eye-outline"}
                     size={24}
-                    color="#666"
+                    color={theme.icon}
                   />
                 </TouchableOpacity>
               </View>
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Confirm Password</Text>
-              <View style={styles.passwordContainer}>
+              <Text style={[styles.label, { color: theme.text }]}>
+                Confirm Password
+              </Text>
+              <View
+                style={[
+                  styles.passwordContainer,
+                  { backgroundColor: theme.card, borderColor: theme.text },
+                ]}
+              >
                 <TextInput
-                  style={styles.passwordInput}
+                  style={[styles.passwordInput, { color: theme.text }]}
                   placeholder="Confirm your password"
                   placeholderTextColor="#999"
                   value={confirmPassword}
@@ -116,7 +186,7 @@ const Signup = () => {
                       showConfirmPassword ? "eye-off-outline" : "eye-outline"
                     }
                     size={24}
-                    color="#666"
+                    color={theme.icon}
                   />
                 </TouchableOpacity>
               </View>
@@ -127,7 +197,9 @@ const Signup = () => {
             </TouchableOpacity>
 
             <View style={styles.footer}>
-              <Text style={styles.footerText}>Already have an account? </Text>
+              <Text style={[styles.footerText, { color: theme.text }]}>
+                Already have an account?{" "}
+              </Text>
               <TouchableOpacity onPress={() => router.push("/auth/login")}>
                 <Text style={styles.link}>Login</Text>
               </TouchableOpacity>

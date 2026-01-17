@@ -1,3 +1,10 @@
+import {
+  backgroundColors,
+  primaryColors,
+  secondaryColors,
+  whiteColors,
+} from "@/constants/GlobalConstants";
+import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -12,10 +19,10 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { backgroundColors, primaryColors, secondaryColors, whiteColors } from "@/constants/GlobalConstants";
 
 const Login = () => {
   const router = useRouter();
+  const { theme } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +34,9 @@ const Login = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
@@ -38,14 +47,23 @@ const Login = () => {
         >
           <View style={styles.headerContainer}>
             <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to continue</Text>
+            <Text style={[styles.subtitle, { color: theme.text }]}>
+              Sign in to continue
+            </Text>
           </View>
 
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={[styles.label, { color: theme.text }]}>Email</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.card,
+                    color: theme.text,
+                    borderColor: theme.text,
+                  },
+                ]}
                 placeholder="Enter your email"
                 placeholderTextColor="#999"
                 value={email}
@@ -56,10 +74,17 @@ const Login = () => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Password</Text>
-              <View style={styles.passwordContainer}>
+              <Text style={[styles.label, { color: theme.text }]}>
+                Password
+              </Text>
+              <View
+                style={[
+                  styles.passwordContainer,
+                  { backgroundColor: theme.card, borderColor: theme.text },
+                ]}
+              >
                 <TextInput
-                  style={styles.passwordInput}
+                  style={[styles.passwordInput, { color: theme.text }]}
                   placeholder="Enter your password"
                   placeholderTextColor="#999"
                   value={password}
@@ -70,9 +95,9 @@ const Login = () => {
                   onPress={() => setShowPassword(!showPassword)}
                 >
                   <Ionicons
-                    name={showPassword ? "eye-off-outline" : "eye-outline"}
+                    name={showPassword ? "eye-outline" : "eye-off-outline"}
                     size={24}
-                    color="#666"
+                    color={theme.icon}
                   />
                 </TouchableOpacity>
               </View>
@@ -87,7 +112,9 @@ const Login = () => {
             </TouchableOpacity>
 
             <View style={styles.footer}>
-              <Text style={styles.footerText}>Don't have an account? </Text>
+              <Text style={[styles.footerText, { color: theme.text }]}>
+                Don't have an account?{" "}
+              </Text>
               <TouchableOpacity onPress={() => router.push("/auth/signup")}>
                 <Text style={styles.link}>Sign Up</Text>
               </TouchableOpacity>
