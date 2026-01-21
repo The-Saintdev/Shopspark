@@ -30,8 +30,30 @@ import {
   primaryColors,
   whiteColors,
 } from "../../constants/GlobalConstants";
+import { useAuth } from "../../context/AuthContext";
 import { Product, useCart } from "../../context/CartContext";
 import { useTheme } from "../../context/ThemeContext";
+
+// Get greeting based on time of day
+const getGreeting = (firstName?: string) => { 
+  const hour = new Date().getHours();
+  let greeting = "";
+
+  if (hour >= 0 && hour < 12) {
+    greeting = "Good Morning";
+  } else if (hour >= 12 && hour < 17) {
+    greeting = "Good Afternoon";
+  } else if (hour >= 17 && hour < 21) {
+    greeting = "Good Evening";
+  } else {
+    greeting = "Good Night";
+  }
+
+  if (firstName) {
+    return `${greeting}, ${firstName}! 👋`;
+  }
+  return `${greeting}! 👋`;
+};
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const BANNER_WIDTH = SCREEN_WIDTH * 0.85;
@@ -126,9 +148,9 @@ const Home = () => {
   const router = useRouter();
   const { addToCart, cart } = useCart();
   const { theme } = useTheme();
+  const { profile } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-
   const scrollX = useSharedValue(0);
   const bannerRef = useRef<FlatList>(null);
   const currentIndexRef = useRef(0);
@@ -241,7 +263,7 @@ const Home = () => {
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.greeting, { color: theme.text }]}>
-            Hello! 👋
+            {getGreeting(profile?.first_name)}
           </Text>
           <Text style={[styles.subtitle, { color: theme.text }]}>
             Find your favorite products

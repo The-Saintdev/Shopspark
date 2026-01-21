@@ -1,5 +1,6 @@
 import ProfileOption from "@/components/ProfileOption";
 import { backgroundColors, primaryColors } from "@/constants/GlobalConstants";
+import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -16,9 +17,26 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
+
 const Profile = () => {
   const router = useRouter();
   const { theme } = useTheme();
+  const { profile, signOut, refreshProfile } = useAuth();
+
+  // Refresh profile when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      refreshProfile();
+    }, [])
+  );
+
+  // Get full name from profile
+  const fullName = profile
+    ? `${profile.first_name} ${profile.last_name}`
+    : "User";
+  const email = profile?.email || "user@example.com";
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -26,7 +44,14 @@ const Profile = () => {
       {
         text: "Logout",
         style: "destructive",
-        onPress: () => router.replace("/auth/login"),
+        onPress: async () => {
+          try {
+            await signOut();
+          } catch (error) {
+            console.error("Logout error:", error);
+            Alert.alert("Error", "Failed to logout. Please try again.");
+          }
+        },
       },
     ]);
   };
@@ -46,16 +71,13 @@ const Profile = () => {
           <View style={styles.profileImageContainer}>
             <Image
               source={{
-                uri: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop",
+                uri: profile?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop",
               }}
               style={styles.profileImage}
             />
-            {/* <TouchableOpacity style={styles.editIcon}>
-              <MaterialCommunityIcons name="pencil" size={16} color="white" />
-            </TouchableOpacity> */}
           </View>
-          <Text style={[styles.name, { color: theme.text }]}>John Doe</Text>
-          <Text style={styles.email}>john.doe@example.com</Text>
+          <Text style={[styles.name, { color: theme.text }]}>{fullName}</Text>
+          <Text style={styles.email}>{email}</Text>
         </Animated.View>
 
         {/* Stats Section */}
