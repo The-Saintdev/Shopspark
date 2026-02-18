@@ -1,8 +1,9 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
   Image,
@@ -33,9 +34,10 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { Product, useCart } from "../../context/CartContext";
 import { useTheme } from "../../context/ThemeContext";
+import { fetchProducts } from "../../lib/products";
 
 // Get greeting based on time of day
-const getGreeting = (firstName?: string) => { 
+const getGreeting = (firstName?: string) => {
   const hour = new Date().getHours();
   let greeting = "";
 
@@ -58,58 +60,6 @@ const getGreeting = (firstName?: string) => {
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const BANNER_WIDTH = SCREEN_WIDTH * 0.85;
 const SPACER_WIDTH = (SCREEN_WIDTH - BANNER_WIDTH) / 2;
-
-// Mock Data
-const PRODUCTS: Product[] = [
-  {
-    id: "1",
-    name: "Wireless Headphones",
-    price: 99.99,
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop",
-    description: "High quality wireless headphones.",
-  },
-  {
-    id: "2",
-    name: "Smart Watch",
-    price: 199.99,
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop",
-    description: "Advanced smart watch.",
-  },
-  {
-    id: "3",
-    name: "Running Shoes",
-    price: 79.99,
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1000&auto=format&fit=crop",
-    description: "Comfortable running shoes.",
-  },
-  {
-    id: "4",
-    name: "Leather Bag",
-    price: 129.5,
-    image:
-      "https://images.unsplash.com/photo-1491637639811-60e2756cc1c7?q=80&w=1000&auto=format&fit=crop",
-    description: "Genuine leather bag.",
-  },
-  {
-    id: "5",
-    name: "Digital Camera",
-    price: 599.0,
-    image:
-      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop",
-    description: "Professional digital camera.",
-  },
-  {
-    id: "6",
-    name: "Sunglasses",
-    price: 45.0,
-    image:
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=1000&auto=format&fit=crop",
-    description: "Stylish sunglasses.",
-  },
-];
 
 const BANNERS = [
   {
@@ -154,6 +104,35 @@ const Home = () => {
   const scrollX = useSharedValue(0);
   const bannerRef = useRef<FlatList>(null);
   const currentIndexRef = useRef(0);
+
+  // ── Live product state ──
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadProducts = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await fetchProducts();
+      setProducts(data);
+    } catch (err: any) {
+      setError(err.message ?? "Failed to load products");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
+
+  // Filter products by search query
+  const filteredProducts = searchQuery.trim()
+    ? products.filter((p) =>
+      p.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    : products;
 
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollX.value = event.contentOffset.x;
@@ -364,11 +343,39 @@ const Home = () => {
     </View>
   );
 
+  // ── Loading state ──
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+        <ActivityIndicator size="large" color={primaryColors} />
+        <Text style={{ marginTop: 12, color: "#666", fontSize: 15 }}>Loading products…</Text>
+      </SafeAreaView>
+    );
+  }
+
+  // ── Error state ──
+  if (error) {
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+        <MaterialCommunityIcons name="alert-circle-outline" size={48} color="#FF3B30" />
+        <Text style={{ marginTop: 12, color: "#666", fontSize: 15, textAlign: "center" }}>
+          {error}
+        </Text>
+        <TouchableOpacity
+          style={{ marginTop: 16, backgroundColor: primaryColors, paddingHorizontal: 24, paddingVertical: 10, borderRadius: 10 }}
+          onPress={loadProducts}
+        >
+          <Text style={{ color: whiteColors, fontWeight: "600" }}>Retry</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
         ListHeaderComponent={renderHeader}
-        data={PRODUCTS}
+        data={filteredProducts}
         renderItem={({ item, index }) => (
           <Animated.View
             entering={FadeInDown.delay(index * 150 + 600)
@@ -388,6 +395,14 @@ const Home = () => {
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={{ alignItems: "center", paddingVertical: 40 }}>
+            <MaterialCommunityIcons name="package-variant" size={48} color="#ccc" />
+            <Text style={{ marginTop: 12, color: "#999", fontSize: 15 }}>
+              {searchQuery ? "No products match your search" : "No products available yet"}
+            </Text>
+          </View>
+        }
       />
     </SafeAreaView>
   );
