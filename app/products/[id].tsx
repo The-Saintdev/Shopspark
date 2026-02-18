@@ -1,7 +1,8 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -18,64 +19,7 @@ import {
   whiteColors,
 } from "../../constants/GlobalConstants";
 import { Product, useCart } from "../../context/CartContext";
-
-// Mock product data (in production, fetch from API)
-const ALL_PRODUCTS: Product[] = [
-  {
-    id: "1",
-    name: "Wireless Headphones",
-    price: 99.99,
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop",
-    description:
-      "Premium wireless headphones with active noise cancellation, 30-hour battery life, and supreme comfort for all-day wear.",
-  },
-  {
-    id: "2",
-    name: "Smart Watch",
-    price: 199.99,
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop",
-    description:
-      "Advanced fitness tracker with heart rate monitoring, GPS, and smartphone notifications. Water-resistant up to 50 meters.",
-  },
-  {
-    id: "3",
-    name: "Running Shoes",
-    price: 79.99,
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1000&auto=format&fit=crop",
-    description:
-      "Lightweight running shoes with responsive cushioning and breathable mesh upper. Perfect for daily training and races.",
-  },
-  {
-    id: "4",
-    name: "Leather Bag",
-    price: 129.5,
-    image:
-      "https://images.unsplash.com/photo-1491637639811-60e2756cc1c7?q=80&w=1000&auto=format&fit=crop",
-    description:
-      "Genuine leather messenger bag with multiple compartments. Ideal for work or travel with padded laptop sleeve.",
-  },
-  {
-    id: "5",
-    name: "Digital Camera",
-    price: 599.0,
-    image:
-      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop",
-    description:
-      "24MP mirrorless camera with 4K video, fast autofocus, and interchangeable lens system for professional photography.",
-  },
-  {
-    id: "6",
-    name: "Sunglasses",
-    price: 45.0,
-    image:
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=1000&auto=format&fit=crop",
-    description:
-      "Polarized UV protection sunglasses with lightweight frame. Classic aviator style suitable for any occasion.",
-  },
-];
+import { fetchProductById, fetchProducts } from "../../lib/products";
 
 const ProductDetail = () => {
   const { id } = useLocalSearchParams();
@@ -85,11 +29,50 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // Find current product
-  const product = ALL_PRODUCTS.find((p) => p.id === id);
+  // ── Live data state ──
+  const [product, setProduct] = useState<Product | null>(null);
+  const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Get suggested products (exclude current product)
-  const suggestedProducts = ALL_PRODUCTS.filter((p) => p.id !== id).slice(0, 4);
+  const loadProduct = useCallback(async () => {
+    try {
+      setLoading(true);
+      const productId = Array.isArray(id) ? id[0] : id;
+      const [fetched, allProducts] = await Promise.all([
+        fetchProductById(productId),
+        fetchProducts(),
+      ]);
+      setProduct(fetched);
+      setSuggestedProducts(
+        allProducts.filter((p) => p.id !== productId).slice(0, 4),
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    loadProduct();
+  }, [loadProduct]);
+
+  // ── Loading state ──
+  if (loading) {
+    return (
+      <SafeAreaView
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
+        <ActivityIndicator size="large" color={primaryColors} />
+        <Text style={{ marginTop: 12, color: "#666", fontSize: 15 }}>
+          Loading product…
+        </Text>
+      </SafeAreaView>
+    );
+  }
 
   if (!product) {
     return (
@@ -206,26 +189,30 @@ const ProductDetail = () => {
           </View>
 
           {/* Suggested Products */}
-          <Text style={styles.sectionTitle}>You May Also Like</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.suggestedProducts}
-          >
-            {suggestedProducts.map((item, index) => (
-              <Animated.View
-                key={item.id}
-                entering={FadeInRight.delay(index * 100 + 300).springify()}
-                style={styles.suggestedProductCard}
+          {suggestedProducts.length > 0 && (
+            <>
+              <Text style={styles.sectionTitle}>You May Also Like</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.suggestedProducts}
               >
-                <ProductCard
-                  product={item}
-                  onAddToCart={addToCart}
-                  onPress={handleProductPress}
-                />
-              </Animated.View>
-            ))}
-          </ScrollView>
+                {suggestedProducts.map((item, index) => (
+                  <Animated.View
+                    key={item.id}
+                    entering={FadeInRight.delay(index * 100 + 300).springify()}
+                    style={styles.suggestedProductCard}
+                  >
+                    <ProductCard
+                      product={item}
+                      onAddToCart={addToCart}
+                      onPress={handleProductPress}
+                    />
+                  </Animated.View>
+                ))}
+              </ScrollView>
+            </>
+          )}
         </Animated.View>
       </ScrollView>
 

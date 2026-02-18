@@ -5,10 +5,12 @@ import {
   whiteColors,
 } from "@/constants/GlobalConstants";
 import { useTheme } from "@/context/ThemeContext";
+import { signIn } from "@/lib/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -26,11 +28,24 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    // TODO: Implement login logic
-    console.log("Login pressed", { email, password });
-    router.push("/home");
+  const handleLogin = async() => {
+    if (!email || !password) {
+      Alert.alert("Please enter both email and password");
+      return;
+    }
+
+    setLoading(true);
+    try{
+      await signIn({ email, password });
+      router.push("/(tabs)/home");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      Alert.alert("Login failed", errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

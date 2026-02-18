@@ -33,11 +33,11 @@ export async function signUp({
     }
 
     const {error: profileError} = await supabase
-        .from('profiles')
+        .from('profile')
         .insert({
             id: user.id,
-            firstName,
-            lastName,
+            first_name: firstName,
+            last_name: lastName,
             email,
         });
 
@@ -45,4 +45,25 @@ export async function signUp({
             throw profileError;
         }
         return user;
+}
+
+// Sign in an existing user
+export async function signIn({
+    email,
+    password,
+}: {
+    email: string;
+    password: string;
+}) {
+ 
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+    });
+
+    if (error) {
+        throw error;
+    }
+
+    return data.user;
 }
