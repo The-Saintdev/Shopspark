@@ -4,12 +4,14 @@ import {
   secondaryColors,
   whiteColors,
 } from "@/constants/GlobalConstants";
-import {signUp} from "@/lib/auth";
 import { useTheme } from "@/context/ThemeContext";
+import { signUp } from "@/lib/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -17,7 +19,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -31,20 +33,37 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
-    // TODO: Implement signup logic
-   if (password !== confirmPassword) {
-      alert("Passwords do not match");
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+      Alert.alert("Error", "Please fill in all fields");
       return;
     }
+
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true);
     try {
       await signUp({ email, password, firstName, lastName });
-      alert("Signup successful! Please verify your email before logging in.");
-      router.push("/auth/login");
-    } catch (err: any) {
-      setError (err.message || "An error occurred during signup");
+      Alert.alert(
+        "Success",
+        "Signup successful! Please check your email to verify your account before logging in.",
+        [{ text: "OK", onPress: () => router.replace("/auth/login") }]
+      );
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred during signup";
+      Alert.alert("Signup Failed", errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -192,8 +211,16 @@ const Signup = () => {
               </View>
             </View>
 
-            <TouchableOpacity style={styles.button} onPress={handleSignup}>
-              <Text style={styles.buttonText}>Sign Up</Text>
+            <TouchableOpacity
+              style={[styles.button, loading && styles.buttonDisabled]}
+              onPress={handleSignup}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color={whiteColors} />
+              ) : (
+                <Text style={styles.buttonText}>Sign Up</Text>
+              )}
             </TouchableOpacity>
 
             <View style={styles.footer}>
@@ -290,6 +317,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
   buttonText: {
     color: whiteColors,
