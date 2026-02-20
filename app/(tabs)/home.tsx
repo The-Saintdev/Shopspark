@@ -7,6 +7,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -100,6 +101,7 @@ const Home = () => {
   const { theme } = useTheme();
   const { profile } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const scrollX = useSharedValue(0);
   const bannerRef = useRef<FlatList>(null);
@@ -172,28 +174,28 @@ const Home = () => {
         scrollX.value,
         inputRange,
         [0.9, 1, 0.9],
-        Extrapolation.CLAMP
+        Extrapolation.CLAMP,
       );
 
       const opacity = interpolate(
         scrollX.value,
         inputRange,
         [0.6, 1, 0.6],
-        Extrapolation.CLAMP
+        Extrapolation.CLAMP,
       );
 
       const rotateY = interpolate(
         scrollX.value,
         inputRange,
         [10, 0, -10], // Rotate slightly for 3D effect
-        Extrapolation.CLAMP
+        Extrapolation.CLAMP,
       );
 
       const translateX = interpolate(
         scrollX.value,
         inputRange,
         [20, 0, -20],
-        Extrapolation.CLAMP
+        Extrapolation.CLAMP,
       );
 
       return {
@@ -374,6 +376,13 @@ const Home = () => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#00D563"
+          />
+        }
         ListHeaderComponent={renderHeader}
         data={filteredProducts}
         renderItem={({ item, index }) => (

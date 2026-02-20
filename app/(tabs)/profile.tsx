@@ -3,7 +3,7 @@ import { backgroundColors, primaryColors } from "@/constants/GlobalConstants";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import React from "react";
 import {
   Alert,
@@ -16,6 +16,8 @@ import {
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useCallback } from "react";
+;
 
 import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";

@@ -60,7 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       },
       () => {
         heartScale.value = withSpring(1);
-      }
+      },
     );
   };
 
@@ -94,11 +94,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
       >
         {/* Product Image with Favorite Button */}
         <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: product.image }}
-            style={styles.image}
-            resizeMode="cover"
-          />
+          {product.image ? (
+            <Image
+              source={{ uri: product.image }}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={[styles.image, styles.imagePlaceholder]} />
+          )}
 
           {/* Favorite Button */}
           <TouchableOpacity
@@ -176,6 +180,9 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
+  },
+  imagePlaceholder: {
+    backgroundColor: "#e0e0e0",
   },
   favoriteButton: {
     position: "absolute",
