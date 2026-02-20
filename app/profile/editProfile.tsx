@@ -1,9 +1,5 @@
 import ProfileHeader from "@/components/ProfileHeader";
-import {
-  backgroundColors,
-  primaryColors,
-  whiteColors,
-} from "@/constants/GlobalConstants";
+import { backgroundColors, primaryColors, whiteColors } from "@/constants/GlobalConstants";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { supabase } from "@/lib/supabase";
@@ -72,10 +68,7 @@ const EditProfile = () => {
     }
   };
 
-  const uploadImage = async (
-    uri: string,
-    userId: string,
-  ): Promise<string | null> => {
+  const uploadImage = async (uri: string, userId: string): Promise<string | null> => {
     try {
       const arrayBuffer = await fetch(uri).then((res) => res.arrayBuffer());
       const fileExt = uri.split(".").pop()?.toLowerCase() || "jpg";
@@ -123,10 +116,7 @@ const EditProfile = () => {
         if (uploadedUrl) {
           avatarUrl = uploadedUrl;
         } else {
-          Alert.alert(
-            "Warning",
-            "Failed to upload image. Profile will be saved without new image.",
-          );
+          Alert.alert("Warning", "Failed to upload image. Profile will be saved without new image.");
         }
       }
 
@@ -182,18 +172,12 @@ const EditProfile = () => {
               <TouchableOpacity onPress={pickImage}>
                 <Image
                   source={{
-                    uri:
-                      image ||
-                      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop",
+                    uri: image || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop",
                   }}
                   style={styles.profileImage}
                 />
                 <View style={styles.editIcon}>
-                  <MaterialCommunityIcons
-                    name="pencil"
-                    size={16}
-                    color="white"
-                  />
+                  <MaterialCommunityIcons name="pencil" size={16} color="white" />
                 </View>
               </TouchableOpacity>
             </View>
@@ -201,9 +185,7 @@ const EditProfile = () => {
 
           {/* First Name */}
           <View>
-            <Text style={[styles.inputLabel, { color: theme.text }]}>
-              First Name
-            </Text>
+            <Text style={[styles.inputLabel, { color: theme.text }]}>First Name</Text>
             <TextInput
               placeholder="Enter your first name"
               placeholderTextColor="#999"
@@ -223,9 +205,7 @@ const EditProfile = () => {
 
           {/* Last Name */}
           <View>
-            <Text style={[styles.inputLabel, { color: theme.text }]}>
-              Last Name
-            </Text>
+            <Text style={[styles.inputLabel, { color: theme.text }]}>Last Name</Text>
             <TextInput
               placeholder="Enter your last name"
               placeholderTextColor="#999"

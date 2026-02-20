@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
-import { AuthProvider } from "@/context/AuthContext";
-import { ThemeProvider } from "../context/ThemeContext";
+import { AuthProvider } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
+import { ThemeProvider } from "../context/ThemeContext";
 
 export default function RootLayout() {
   return (
@@ -46,18 +46,12 @@ export default function RootLayout() {
               name="profile/editProfile"
               options={{ headerShown: false }}
             />
-            <Stack.Screen
-              name="profile/about"
-              options={{ headerShown: false }}
-            />
+            <Stack.Screen name="profile/about" options={{ headerShown: false }} />
             <Stack.Screen
               name="legal/HelpCenter"
               options={{ headerShown: false }}
             />
-            <Stack.Screen
-              name="legal/Policy"
-              options={{ headerShown: false }}
-            />
+            <Stack.Screen name="legal/Policy" options={{ headerShown: false }} />
             <Stack.Screen name="legal/Terms" options={{ headerShown: false }} />
 
             <Stack.Screen

@@ -37,8 +37,9 @@ import { Product, useCart } from "../../context/CartContext";
 import { useTheme } from "../../context/ThemeContext";
 import { fetchProducts } from "../../lib/products";
 
+
 // Get greeting based on time of day
-const getGreeting = (firstName?: string) => {
+const getGreeting = (firstName?: string) => { 
   const hour = new Date().getHours();
   let greeting = "";
 
