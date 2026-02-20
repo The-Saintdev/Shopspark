@@ -1,13 +1,13 @@
 import privacyShield from "@/assets/images/privashield.jpg";
 import ProfileHeader from "@/components/ProfileHeader";
+import { useAppLock } from "@/context/AppLockContext";
 import {
   Entypo,
-  Feather,
   FontAwesome,
   FontAwesome5,
   Foundation,
   Ionicons,
-  MaterialIcons,
+  MaterialIcons
 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -25,13 +25,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../context/ThemeContext";
 
 const privacy = () => {
-  const [isFingerprintEnabled, setIsFingerprintEnabled] = useState(false);
-  const toggleFingerprintSwitch = () =>
-    setIsFingerprintEnabled((previousState) => !previousState);
-
-  const [isLockEnabled, setIsLockEnabled] = useState(false);
-  const toggleLockSwitch = () =>
-    setIsLockEnabled((previousState) => !previousState);
+  const {
+    appLockEnabled,
+    biometricsEnabled,
+    toggleAppLock,
+    toggleBiometrics,
+    biometricLabel,
+  } = useAppLock();
 
   const [isMarketingEnabled, setIsMarketingEnabled] = useState(false);
   const toggleMarketingSwitch = () =>
@@ -53,7 +53,7 @@ const privacy = () => {
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => {},
+          onPress: () => { },
         },
       ]
     );
@@ -247,23 +247,35 @@ const privacy = () => {
             <View style={styles.iconContainer}>
               <Entypo name="lock" size={24} color="black" />
             </View>
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: "bold",
-                marginLeft: 3,
-                color: theme.text,
-              }}
-            >
-              App Lock
-            </Text>
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "bold",
+                  marginLeft: 3,
+                  color: theme.text,
+                }}
+              >
+                App Lock
+              </Text>
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: theme.text,
+                  marginLeft: 3,
+                  opacity: 0.6,
+                }}
+              >
+                Lock app when you leave
+              </Text>
+            </View>
             <Switch
               style={styles.switch}
               trackColor={{ false: "#767577", true: "#506dffff" }}
-              thumbColor={isLockEnabled ? "#ffff" : "#f4f3f4"}
+              thumbColor={appLockEnabled ? "#ffff" : "#f4f3f4"}
               ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleLockSwitch}
-              value={isLockEnabled}
+              onValueChange={toggleAppLock}
+              value={appLockEnabled}
             />
           </View>
           <View style={styles.separator} />
@@ -271,23 +283,35 @@ const privacy = () => {
             <View style={styles.iconContainer}>
               <Ionicons name="finger-print" size={24} color="black" />
             </View>
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: "bold",
-                marginLeft: 3,
-                color: theme.text,
-              }}
-            >
-              Biometrics
-            </Text>
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "bold",
+                  marginLeft: 3,
+                  color: theme.text,
+                }}
+              >
+                {biometricLabel}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: theme.text,
+                  marginLeft: 3,
+                  opacity: 0.6,
+                }}
+              >
+                Use {biometricLabel} to unlock
+              </Text>
+            </View>
             <Switch
               style={styles.switch}
               trackColor={{ false: "#767577", true: "#ff9950ff" }}
-              thumbColor={isFingerprintEnabled ? "#ffff" : "#f4f3f4"}
+              thumbColor={biometricsEnabled ? "#ffff" : "#f4f3f4"}
               ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleFingerprintSwitch}
-              value={isFingerprintEnabled}
+              onValueChange={toggleBiometrics}
+              value={biometricsEnabled}
             />
           </View>
         </View>
@@ -305,6 +329,7 @@ const privacy = () => {
 };
 
 export default privacy;
+
 
 const styles = StyleSheet.create({
   imagecon: {

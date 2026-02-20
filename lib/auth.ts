@@ -32,12 +32,8 @@ export async function signUp({
         throw new Error("User not found");
     }
 
-<<<<<<< HEAD
-    const {error: profileError} = await supabase
-=======
     // Insert profile with column names matching the SQL schema
     const { error: profileError } = await supabase
->>>>>>> e2afccc (copy copy)
         .from('profile')
         .insert({
             id: user.id,
@@ -46,14 +42,6 @@ export async function signUp({
             email,
         });
 
-<<<<<<< HEAD
-        if(profileError){
-            throw profileError;
-        }
-        return user;
-}
-
-=======
     if (profileError) {
         throw profileError;
     }
@@ -62,7 +50,6 @@ export async function signUp({
 }
 
 
->>>>>>> e2afccc (copy copy)
 // Sign in an existing user
 export async function signIn({
     email,
@@ -71,10 +58,6 @@ export async function signIn({
     email: string;
     password: string;
 }) {
-<<<<<<< HEAD
- 
-=======
->>>>>>> e2afccc (copy copy)
     const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -85,8 +68,6 @@ export async function signIn({
     }
 
     return data.user;
-<<<<<<< HEAD
-=======
 }
 
 // Sign out the current user
@@ -122,5 +103,4 @@ export async function getUserProfile(userId: string) {
     }
 
     return data;
->>>>>>> e2afccc (copy copy)
 }

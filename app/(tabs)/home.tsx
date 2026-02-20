@@ -37,9 +37,8 @@ import { Product, useCart } from "../../context/CartContext";
 import { useTheme } from "../../context/ThemeContext";
 import { fetchProducts } from "../../lib/products";
 
-
 // Get greeting based on time of day
-const getGreeting = (firstName?: string) => { 
+const getGreeting = (firstName?: string) => {
   const hour = new Date().getHours();
   let greeting = "";
 
@@ -123,7 +122,6 @@ const Home = () => {
       setError(err.message ?? "Failed to load products");
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }, []);
 
@@ -131,16 +129,11 @@ const Home = () => {
     loadProducts();
   }, [loadProducts]);
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    loadProducts();
-  }, [loadProducts]);
-
   // Filter products by search query
   const filteredProducts = searchQuery.trim()
     ? products.filter((p) =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
+      p.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : products;
 
   const onScroll = useAnimatedScrollHandler((event) => {
@@ -355,16 +348,9 @@ const Home = () => {
   // ── Loading state ──
   if (loading) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { justifyContent: "center", alignItems: "center" },
-        ]}
-      >
+      <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
         <ActivityIndicator size="large" color={primaryColors} />
-        <Text style={{ marginTop: 12, color: "#666", fontSize: 15 }}>
-          Loading products…
-        </Text>
+        <Text style={{ marginTop: 12, color: "#666", fontSize: 15 }}>Loading products…</Text>
       </SafeAreaView>
     );
   }
@@ -372,35 +358,13 @@ const Home = () => {
   // ── Error state ──
   if (error) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { justifyContent: "center", alignItems: "center" },
-        ]}
-      >
-        <MaterialCommunityIcons
-          name="alert-circle-outline"
-          size={48}
-          color="#FF3B30"
-        />
-        <Text
-          style={{
-            marginTop: 12,
-            color: "#666",
-            fontSize: 15,
-            textAlign: "center",
-          }}
-        >
+      <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+        <MaterialCommunityIcons name="alert-circle-outline" size={48} color="#FF3B30" />
+        <Text style={{ marginTop: 12, color: "#666", fontSize: 15, textAlign: "center" }}>
           {error}
         </Text>
         <TouchableOpacity
-          style={{
-            marginTop: 16,
-            backgroundColor: primaryColors,
-            paddingHorizontal: 24,
-            paddingVertical: 10,
-            borderRadius: 10,
-          }}
+          style={{ marginTop: 16, backgroundColor: primaryColors, paddingHorizontal: 24, paddingVertical: 10, borderRadius: 10 }}
           onPress={loadProducts}
         >
           <Text style={{ color: whiteColors, fontWeight: "600" }}>Retry</Text>
@@ -442,15 +406,9 @@ const Home = () => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={{ alignItems: "center", paddingVertical: 40 }}>
-            <MaterialCommunityIcons
-              name="package-variant"
-              size={48}
-              color="#ccc"
-            />
+            <MaterialCommunityIcons name="package-variant" size={48} color="#ccc" />
             <Text style={{ marginTop: 12, color: "#999", fontSize: 15 }}>
-              {searchQuery
-                ? "No products match your search"
-                : "No products available yet"}
+              {searchQuery ? "No products match your search" : "No products available yet"}
             </Text>
           </View>
         }

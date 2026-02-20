@@ -44,7 +44,7 @@ const ProductDetail = () => {
       ]);
       setProduct(fetched);
       setSuggestedProducts(
-        allProducts.filter((p) => p.id !== productId).slice(0, 4),
+        allProducts.filter((p) => p.id !== productId).slice(0, 4)
       );
     } catch (err) {
       console.error(err);
@@ -60,16 +60,9 @@ const ProductDetail = () => {
   // ── Loading state ──
   if (loading) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { justifyContent: "center", alignItems: "center" },
-        ]}
-      >
+      <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
         <ActivityIndicator size="large" color={primaryColors} />
-        <Text style={{ marginTop: 12, color: "#666", fontSize: 15 }}>
-          Loading product…
-        </Text>
+        <Text style={{ marginTop: 12, color: "#666", fontSize: 15 }}>Loading product…</Text>
       </SafeAreaView>
     );
   }
